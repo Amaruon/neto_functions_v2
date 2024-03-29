@@ -1,12 +1,15 @@
+import sys
+
+
 class Document:
-    def __init__(self, d_type, number, owner, directory):
-        self.number = number
+    def __init__(self, d_type, d_number, owner, directory):
+        self.d_number = d_number
         self.d_type = d_type
         self.owner = owner
         self.directory = directory
 
     def __str__(self):
-        return f'№: {self.number}, type: {self.type}, owner: {self.owner}, directory: {self.directory.number}'
+        return f'№: {self.d_number}, type: {self.d_type}, owner: {self.owner}, directory: {self._directory.number}'
 
     @property
     def directory(self): return self._directory
@@ -36,56 +39,82 @@ class Directory:
     def add_document(self, d_type, number, owner, directory):
         self.documents.append(Document(d_type, number, owner, directory))
 
+    def fetch_document(self, num):
+        for document in self.documents:
+            if document.d_number == num:
+                return document
+        else:
+            return f'There is no documents with number {num}'
+
+    def all_documents(self):
+        for document in self.documents:
+            return document
+
 
 class DocumentHandler:
     def __init__(self):
-        self.documents = []
         self.directories = []
 
-    def add_document(self, value):
-        if isinstance(value, Document):
-            self.documents.append(value)
-
-    def create_directory(self):
+    def add_directory(self):
         self.directories.append(Directory(input('Provide directory number: ')))
 
-    def get_directory_by_number(self):
-        num = int(input('Enter directory number: '))
+    def fetch_directory(self, num):
         for directory in self.directories:
             if directory.number == num:
                 return directory
+        else:
+            return None
 
-    def create_new_document(self):
-        num = input('Provide number of document: ')
-        type = input('Provide type of document: ')
-        owner = input('Provide owner of document: ')
-        directory = self.get_directory_by_number()
+    def create_document(self, dir_num=None, doc_type=None, doc_num=None, doc_owner=None):
+        doc_num = input('Provide docs number: ')
+        doc_type = input('Provide docs type: ')
+        doc_owner = input('Provide docs owner: ')
+        dir_num = input('Provide number of directory: ')
 
-        doc = Document(type, num, owner, directory)
-        self.documents.append(doc)
-        directory.add_documents(doc)
+        directory = self.fetch_directory(dir_num)
+        if directory:
+            directory.add_document(doc_type, doc_num, doc_owner, directory)
+        else:
+            return f'There is no directory with number {dir_num}!\n' + self.show_all_docs()
 
-    def get_document_by_number(self):
+    def show_all_docs(self):
+        for directory in self.directories:
+            return directory.all_documents()
+
+    def get_docs_value(self, value):
         num = input('Enter number of document: ')
+        result = ''
+        for directory in self.directories:
+            result = directory.fetch_document(num)
+            if isinstance(result, Document):
+                if value == 'owner':
+                    return result.owner
+                elif value == 'directory':
+                    return directory.number
+        return result
 
-        for doc in self.documents:
-            if doc.number == num:
-                return doc
 
+class App:
+    handler = DocumentHandler()
+    options = {
+        'p': handler.get_docs_value('owner'),
+        's': handler.get_docs_value('directory'),
+        'l': handler.show_all_docs(),
+        'ad': handler.create_document(),
+        'q': quit
+    }
 
-class UserInputHandler:
-    def __init__(self, input):
-        self.input = input
+    def run(self):
+        while True:
+            choice = input('Please enter command: ')
+            action = self.options.get(choice)
+            if action:
+                print(action)
+            else:
+                print('Incorrect input!')
+            pass
 
-    @property
-    def input(self): return self._input
+    def quit(self):
+        print('Thank you for coming today!')
+        sys.exit(0)
 
-    @input.setter
-    def input(self, value):
-        self._input = value
-
-    def document_check(self, doc):
-        return doc if doc else 'Document not found!\nYou can add it using "ad" command.'
-
-    def directory_check(self, dir):
-        return dir if dir else 'Directory not found!\nYou can add it using "ads" command.'
