@@ -1,6 +1,3 @@
-import sys
-
-
 class Document:
     def __init__(self, d_type, d_number, owner, directory):
         self.d_number = d_number
@@ -27,7 +24,7 @@ class Directory:
         self.documents = []
 
     def __str__(self):
-        return f'Directory №{self._number} contains {self.documents}'
+        return f'{self.number}'
 
     @property
     def number(self): return self._number
@@ -44,7 +41,7 @@ class Directory:
             if document.d_number == num:
                 return document
         else:
-            return f'There is no documents with number {num}'
+            return f'There is no documents with such number ({num})'
 
     def all_documents(self):
         for document in self.documents:
@@ -55,27 +52,29 @@ class DocumentHandler:
     def __init__(self):
         self.directories = []
 
-    def add_directory(self):
-        self.directories.append(Directory(input('Provide directory number: ')))
+    def __str__(self):
+        return f'Current active directories: {(", ".join(map(str, self.directories)))}'
+
+    def add_directory(self, num):
+        if isinstance(self.fetch_directory(num), Directory):
+            return f'Number {num} is already used! '
+        else:
+            self.directories.append(Directory(num))
+            return f'Directory №{num} was successfully added. '
 
     def fetch_directory(self, num):
         for directory in self.directories:
             if directory.number == num:
                 return directory
-        else:
-            return None
+        return f'There is no directory with such number ({num})!'
 
     def create_document(self, dir_num=None, doc_type=None, doc_num=None, doc_owner=None):
-        doc_num = input('Provide docs number: ')
-        doc_type = input('Provide docs type: ')
-        doc_owner = input('Provide docs owner: ')
-        dir_num = input('Provide number of directory: ')
-
         directory = self.fetch_directory(dir_num)
-        if directory:
+        if isinstance(directory, Directory):
             directory.add_document(doc_type, doc_num, doc_owner, directory)
+            return 'Document was added. '
         else:
-            return f'There is no directory with number {dir_num}!\n' + self.show_all_docs()
+            return f'There is no directory with number {dir_num}!\n' + str(self.show_all_docs())
 
     def show_all_docs(self):
         for directory in self.directories:
@@ -88,33 +87,11 @@ class DocumentHandler:
             result = directory.fetch_document(num)
             if isinstance(result, Document):
                 if value == 'owner':
-                    return result.owner
+                    return f'Owner: {result.owner}'
                 elif value == 'directory':
-                    return directory.number
+                    return f'Directory: {directory.number}'
         return result
 
 
-class App:
-    handler = DocumentHandler()
-    options = {
-        'p': handler.get_docs_value('owner'),
-        's': handler.get_docs_value('directory'),
-        'l': handler.show_all_docs(),
-        'ad': handler.create_document(),
-        'q': quit
-    }
 
-    def run(self):
-        while True:
-            choice = input('Please enter command: ')
-            action = self.options.get(choice)
-            if action:
-                print(action)
-            else:
-                print('Incorrect input!')
-            pass
-
-    def quit(self):
-        print('Thank you for coming today!')
-        sys.exit(0)
 
