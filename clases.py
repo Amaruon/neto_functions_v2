@@ -6,7 +6,7 @@ class Document:
         self.directory = directory
 
     def __str__(self):
-        return f'№: {self.d_number}, type: {self.d_type}, owner: {self.owner}, directory: {self._directory.number}'
+        return f'№: {self.d_number}, тип: {self.d_type}, владелец: {self.owner}, директория: {self._directory.number}'
 
     @property
     def directory(self): return self._directory
@@ -41,15 +41,15 @@ class Directory:
             if document.d_number == num:
                 return document
         else:
-            return f'There is no documents with such number ({num})'
+            return f'Документа с номером {num} не существует!'
 
     def all_documents(self):
         for document in self.documents:
-            return document
+            print(document)
 
     def delete_document(self, document):
         self.documents.remove(document)
-        return f'Document is deleted. '
+        return f'Документ удален. '
 
 
 class DocumentHandler:
@@ -57,35 +57,35 @@ class DocumentHandler:
         self.directories = []
 
     def __str__(self):
-        return f'Current active directories: {(", ".join(map(str, self.directories)))}'
+        return f'Текущие директории: {(", ".join(map(str, self.directories)))}'
 
     def add_directory(self, num):
         if isinstance(self.fetch_directory(num), Directory):
-            return f'Number {num} is already used! {self.__str__()}'
+            return f'Директория с номером {num} уже существует! {self.__str__()}'
         else:
             self.directories.append(Directory(num))
-            return f'Directory №{num} was successfully added. {self.__str__()}'
+            return f'Директория №{num} была успешно добавлена. {self.__str__()}'
 
     def fetch_directory(self, num):
         for directory in self.directories:
             if directory.number == num:
                 return directory
-        return f'There is no directory with such number ({num})! {self.__str__()}'
+        return f'Директории с номером {num} не существует! {self.__str__()}'
 
     def create_document(self, dir_num=None, doc_type=None, doc_num=None, doc_owner=None):
         directory = self.fetch_directory(dir_num)
         if isinstance(directory, Directory):
             directory.add_document(doc_type, doc_num, doc_owner, directory)
-            return 'Document was added. '
+            return f'Документ успешно создан'
         else:
-            return f'There is no directory with number {dir_num}!\n' + str(self.show_all_docs())
+            return directory
 
     def show_all_docs(self):
+        print('Текущие документы: ')
         for directory in self.directories:
-            return directory.all_documents()
+            directory.all_documents()
 
-    def get_doc(self, value=None):
-        num = input('Enter number of document: ')
+    def get_doc(self, value=None, num=None):
         result = ''
         for directory in self.directories:
             result = directory.fetch_document(num)
@@ -97,23 +97,23 @@ class DocumentHandler:
                 elif value == 'delete':
                     return f'{directory.delete_document(result)} \n' + str(self.show_all_docs())
                 elif value == 'change_dir':
-                    new_dir = self.fetch_directory(int(input('New directory: ')))
+                    new_dir = self.fetch_directory(int(input('Новая директория: ')))
                     print(new_dir)
                     try:
                         result.directory = new_dir
-                        return f'Document was moved to new directory. \n{self.show_all_docs()}'
+                        return f'Документ был перемещен в новую директорию. \n{self.show_all_docs()}'
                     except TypeError:
                         return ''
-        return f'{result}\n {str(self.show_all_docs())}'
+        return f'{result}'
 
     def delete_directory(self, num):
         d = self.fetch_directory(num)
         if isinstance(d, Directory):
-            if not d.all_documents():
+            if not d.documents:
                 self.directories.remove(d)
-                return f'Directory {num} is deleted. '
+                return f'Директория {num} была успешно удалена. {self.__str__()}'
             else:
-                return f"Directory {num} isn't empty! "
+                return f"Директория {num} не пуста! {self.__str__()}"
         else:
             return d
 
