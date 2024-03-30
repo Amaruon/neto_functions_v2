@@ -11,7 +11,10 @@ class App:
             'l': self.show_all_docs,
             'ad': self.create_document,
             'ads': self.create_new_dir,
-            'q': self.quit
+            'q': self.quit,
+            'ds': self.delete_directory,
+            'd': self.delete_document,
+            'm': self.change_dir
         }
 
     def run(self):
@@ -25,12 +28,13 @@ class App:
             pass
 
     def get_docs_owner(self):
-        print(self.handler.get_docs_value('owner'))
+        print(self.handler.get_doc('owner'))
 
     def get_docs_directory(self):
-        print(self.handler.get_docs_value('directory'))
+        print(self.handler.get_doc('directory'))
 
     def show_all_docs(self):
+        print('Current documents:')
         print(self.handler.show_all_docs())
 
     def create_document(self):
@@ -39,11 +43,20 @@ class App:
         doc_owner = input('Provide docs owner: ')
         dir_num = int(input('Provide number of directory: '))
 
-        print(self.handler.create_document(dir_num, doc_type, doc_num, doc_owner) + 'Current documents:')
+        print(self.handler.create_document(dir_num, doc_type, doc_num, doc_owner))
         self.show_all_docs()
 
     def create_new_dir(self):
-        print(self.handler.add_directory(int(input('Provide number of directory: '))) + str(self.handler))
+        print(self.handler.add_directory(int(input('Provide number of directory: '))))
+
+    def delete_directory(self):
+        print(self.handler.delete_directory(int(input('Provide number of directory: '))))
+
+    def delete_document(self):
+        print(self.handler.get_doc('delete'))
+
+    def change_dir(self):
+        print(self.handler.get_doc('change_dir'))
 
     def quit(self):
         print('Thanks for coming!')
